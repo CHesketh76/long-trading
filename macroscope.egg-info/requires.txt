@@ -1,0 +1,10 @@
+pandas
+numpy
+sqlalchemy>=2.0
+psycopg2-binary
+pydantic>=2
+requests
+python-dotenv
+
+[dev]
+pytest
