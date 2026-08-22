@@ -6,3 +6,7 @@ venv/
 node_modules/
 *.parquet
 .DS_Store
+build/
+*.egg-info/
+.pytest_cache/
+.dev/

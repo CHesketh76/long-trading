@@ -66,7 +66,7 @@ def test_source_registry_tiers(db):
 
 
 def test_pydantic_event_object_validates():
-    from models import EventObject
+    from macroscope.models import EventObject
 
     evt = EventObject(
         source_id="fred",

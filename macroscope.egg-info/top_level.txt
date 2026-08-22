@@ -1,5 +1,0 @@
-ingestion
-macroscope
-reporting
-signals
-storage

@@ -156,17 +156,18 @@ def seed(engine) -> int:
         # --- theses ---
         conn.execute(text("""INSERT INTO theses (thesis_id, ticker, action, conviction,
             projected_hold_days, status, created_at, updated_at)
-            VALUES (:id, :ticker, :action, :conviction, :hold, :status, :created, :updated)"""),
+            VALUES (:thesis_id, :ticker, :action, :conviction, :projected_hold_days, :status, :created_at, :updated_at)"""),
             dict(thesis_id="ths-001", ticker="GC", action="long", conviction=0.78,
                  projected_hold_days=63, status="under_review",
-                 created=base.isoformat(), updated=base.isoformat()))
+                 created_at=base.isoformat(), updated_at=base.isoformat()))
 
         # --- decisions ---
         conn.execute(text("""INSERT INTO decisions (decision_id, thesis_id, human_decision,
-            reason, edited_params, at) VALUES (:id, :tid, :dec, :reason, :params, :at)"""),
+            reason, edited_params, at) VALUES (:decision_id, :thesis_id, :human_decision,
+            :reason, :edited_params, :at)"""),
             dict(decision_id="dec-001", thesis_id="ths-001", human_decision="modify",
                  reason="Trim conviction to 0.70; hold 42d given regime gate.",
-                 edited_params={"conviction": 0.70, "projected_hold_days": 42},
+                 edited_params=json.dumps({"conviction": 0.70, "projected_hold_days": 42}),
                  at=base.isoformat()))
 
     return len(events) + 1
