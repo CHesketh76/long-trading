@@ -47,7 +47,7 @@ T-002 vintage layer joins on them for point-in-time reconstruction:
 |--------|------|------|
 | `event_ts` | `TIMESTAMPTZ NOT NULL` | **Point-in-time key** every vintage query joins on |
 | `sequence` | `BIGINT NOT NULL` | Per-source monotonic order counter for revision ordering |
-| `published_at` | `TIMESTAMPTZ NOT NULL` | Publisher-stated release time (UTC); quarantine if missing |
+| `published_at` | `TIMESTAMPTZ` (nullable) | Publisher-stated release time (UTC); **NULL = unprovable → quarantine** |
 | `retrieved_at` | `TIMESTAMPTZ NOT NULL` | Macroscope ingest time (UTC) |
 
 Macro releases are stored as first-print + revision chain — a revised CPI print
