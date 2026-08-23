@@ -48,9 +48,13 @@ class EventObject(BaseModel):
 
     # --- identity / provenance ---
     source_id: str = Field(..., min_length=1)
-    published_at: datetime = Field(
-        ...,
-        description="UTC timestamp the publisher stated the item was released.",
+    published_at: Optional[datetime] = Field(
+        None,
+        description=(
+            "UTC timestamp the publisher stated the item was released. NULL is a "
+            "valid value: it marks an unproven-vintage item that must be quarantined "
+            "(see is_quarantine_candidate) rather than entered into the normal stream."
+        ),
     )
     retrieved_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
@@ -79,10 +83,19 @@ class EventObject(BaseModel):
         description="SHA-256 of the extraction prompt where LLM extraction applies.",
     )
 
+    def is_quarantine_candidate(self) -> bool:
+        """True when this item cannot be placed on a point-in-time axis.
+
+        An unproven-vintage event (no publisher-stated release time) must not be
+        entered into the normal stream — it has to be quarantined for manual
+        vintage tagging before it can join T-002's reconstruction. This is the
+        model-side counterpart of the nullable `published_at` column in storage.
+        """
+        return self.published_at is None
+
     def to_utc(self) -> "EventObject":
         """Return a copy with all datetimes normalized to UTC."""
         return self.model_copy(update={
-            "published_at": _to_utc(self.published_at),
             "retrieved_at": _to_utc(self.retrieved_at),
         })
 

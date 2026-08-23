@@ -78,3 +78,30 @@ def test_pydantic_event_object_validates():
     )
     assert evt.source_tier == 1
     assert evt.retrieved_at.tzinfo is not None
+
+
+def test_pydantic_event_object_allows_null_published_at():
+    """Blocker #2: an unproven-vintage item (no published_at) validates and is
+    flagged as a quarantine candidate rather than failing Pydantic."""
+    from macroscope.models import EventObject
+
+    evt = EventObject(
+        source_id="fred",
+        published_at=None,
+        raw_text="Some market move with no stated release time",
+        source_tier=2,
+    )
+    assert evt.published_at is None
+    assert evt.is_quarantine_candidate() is True
+
+
+def test_pydantic_event_object_with_published_at_not_quarantined():
+    from macroscope.models import EventObject
+
+    evt = EventObject(
+        source_id="fred",
+        published_at=datetime(2026, 8, 20, tzinfo=timezone.utc),
+        raw_text="10Y yield up",
+        source_tier=1,
+    )
+    assert evt.is_quarantine_candidate() is False
