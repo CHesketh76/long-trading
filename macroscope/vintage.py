@@ -51,7 +51,14 @@ def simhash(text: str, bits: int = 64) -> int:
     """
     if not text or not text.strip():
         return 0
-    counts = Counter(t for t in _TOKEN_RE.findall(text.lower()) if len(t) > 1)
+    # Keep every numeric token -- even a lone digit like "0" or "9" -- so that
+    # distinct macro prints ("US CPI rose 0.3%" vs "...0.9%") do not collapse to
+    # identical SimHashes. Drop only short *alpha* tokens, which are almost
+    # always noise (a, i, etc.).
+    counts = Counter(
+        t for t in _TOKEN_RE.findall(text.lower())
+        if t.isdigit() or len(t) > 1
+    )
     register = [0] * bits
     for token, weight in counts.items():
         digest = hashlib.sha256(token.encode()).digest()
@@ -224,8 +231,18 @@ def dedupe(
             cid = cluster_ids[reps.index(best_rep)]
             cluster = clusters[cid]
             # Lower source_tier number == higher authority (BLS=1 "T1", Reuters=2 "T2").
-            if evt.source_tier < _tier_of(evt.source_id, ordered):
-                cluster.members.remove(cluster.kept_event_id)
+            # Compare the incoming item against the *current kept rep*, not itself:
+            # _tier_of(evt.source_id, ordered) would find evt in `ordered` and return
+            # its own tier, making the comparison always False. A later-arriving
+            # higher-authority copy displaces the earlier rep (and joins members).
+            current_tier = _tier_of(cluster.kept_event_id, ordered)
+            if evt.source_tier < current_tier:
+                # Displaced rep becomes a member (it is part of the cluster but no
+                # longer the kept copy); the new higher-authority rep is kept. The
+                # old kept rep was never in `members` -- it created the cluster as
+                # the kept id -- so we append rather than remove.
+                if cluster.kept_event_id not in cluster.members:
+                    cluster.members.append(cluster.kept_event_id)
                 cluster.kept_event_id = evt.source_id
             cluster.members.append(evt.source_id)
 

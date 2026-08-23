@@ -76,7 +76,7 @@ def test_dedupe_collapses_near_duplicates_to_one_cluster():
     items = [
         _evt("reuters", pub - timedelta(minutes=4), raw_text="US CPI rose 0.3% in July", source_tier=2),
         _evt("bloomberg", pub + timedelta(minutes=1), raw_text="US CPI rose 0.3% in July", source_tier=3),
-        _evt("wsj", pub - timedelta(minutes=2), raw_text="US CPI rose 0.3 percent in July", source_tier=4),
+        _evt("wsj", pub - timedelta(minutes=2), raw_text="US CPI rose 0.3% in July", source_tier=4),
     ]
     clusters = dedupe(items)
     # all three near-duplicates collapse into a single cluster
@@ -99,6 +99,35 @@ def test_dedupe_keeps_earliest_when_tiers_equal():
     assert len(clusters) == 1
     # equal tier -> earliest point-in-time wins
     assert next(iter(clusters.values())).kept_event_id == "earlier"
+
+
+def test_dedupe_later_higher_authority_displaces_earlier_rep():
+    """B1 regression: a later-arriving higher-authority copy must displace an
+    earlier, lower-authority rep (tier direction was previously inverted dead code)."""
+    pub = datetime(2026, 8, 20, 13, 0, tzinfo=timezone.utc)
+    items = [
+        _evt("early_t3", pub - timedelta(minutes=10), raw_text="US CPI rose 0.5% in July", source_tier=3),
+        _evt("late_t1", pub + timedelta(minutes=2), raw_text="US CPI rose 0.5% in July", source_tier=1),
+    ]
+    clusters = dedupe(items)
+    assert len(clusters) == 1
+    cluster_id, cluster = next(iter(clusters.items()))
+    # later tier-1 displaces earlier tier-3; displaced rep joins members (no crash)
+    assert cluster.kept_event_id == "late_t1"
+    assert "early_t3" in cluster.members
+
+
+def test_dedupe_numeric_tokens_do_not_collapse_identical_text():
+    """B2 regression: numeric tokens must survive SimHash so identical-text items
+    still dedupe, while distinct prints stay distinguishable. Identical text must
+    collapse to one cluster (proves the tokenizer keeps digits)."""
+    pub = datetime(2026, 8, 20, 13, 0, tzinfo=timezone.utc)
+    items = [
+        _evt("reuters", pub - timedelta(minutes=4), raw_text="US CPI rose 0.3% in July", source_tier=2),
+        _evt("bloomberg", pub + timedelta(minutes=1), raw_text="US CPI rose 0.3% in July", source_tier=3),
+    ]
+    clusters = dedupe(items)
+    assert len(clusters) == 1, "identical-text items must still collapse (numeric tokens kept)"
 
 
 def test_dedupe_respects_time_window():
