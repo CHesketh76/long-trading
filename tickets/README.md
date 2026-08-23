@@ -9,9 +9,9 @@ Nothing ships raw from Coder; sr-dev signs off on architecture/security/scalabil
 ## Ticket index
 | ID | Epic (phase) | Card | Owner | Status |
 |----|--------------|------|-------|--------|
-| T-001 | Phase 0 — Foundation | Repo scaffold + storage schema | coder / sr-dev | To Do |
-| T-002 | Phase 0 — Foundation | Vintage / point-in-time tagging layer | coder / sr-dev | To Do |
-| T-003 | Phase 0 — Foundation | Source registry + ingestion adapters #1–7,13 | coder / sr-dev | To Do |
+| T-001 | Phase 0 — Foundation | Repo scaffold + storage schema | coder / sr-dev | Done |
+| T-002 | Phase 0 — Foundation | Vintage / point-in-time tagging layer | coder / sr-dev | In Progress (coder pulling) |
+| T-003 | Phase 0 — Foundation | Source registry + ingestion adapters #1–7,13 | coder / sr-dev | To Do (unlocked by T-002) |
 
 ### Epic: Backtesting & Monte Carlo (user-prioritized)
 | ID | Epic | Card | Owner | Status |
