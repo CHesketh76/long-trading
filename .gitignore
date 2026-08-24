@@ -10,3 +10,7 @@ build/
 *.egg-info/
 .pytest_cache/
 .dev/
+
+# scratch/measurement files
+_measure*.py
+_repro*.py
