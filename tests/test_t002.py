@@ -130,6 +130,33 @@ def test_dedupe_numeric_tokens_do_not_collapse_identical_text():
     assert len(clusters) == 1, "identical-text items must still collapse (numeric tokens kept)"
 
 
+def test_dedupe_distinct_number_prints_do_not_collapse():
+    """B2 discriminator (sr-dev): two prints that differ only in a numeric value
+    must stay in separate clusters. The hard multiset gate makes this deterministic:
+    differing numeric multisets never merge, regardless of SimHash distance."""
+    pub = datetime(2026, 8, 20, 13, 0, tzinfo=timezone.utc)
+    items = [
+        _evt("reuters", pub - timedelta(minutes=4), raw_text="US CPI rose 0.3% in July", source_tier=2),
+        _evt("bloomberg", pub + timedelta(minutes=1), raw_text="US CPI rose 0.9% in July", source_tier=3),
+    ]
+    clusters = dedupe(items)
+    assert len(clusters) == 2, "distinct numeric prints must never merge"
+
+
+def test_dedupe_prose_paraphrase_with_same_number_still_collapses():
+    """B2 discriminator (sr-dev): a prose paraphrase that keeps the same number
+    must still collapse to one cluster. Here the alnum tokenizer would split
+    '0.3' into lone digits and inflate the SimHash distance past threshold; the
+    hard multiset gate lets it through, and the numeric weighting collapses it."""
+    pub = datetime(2026, 8, 20, 13, 0, tzinfo=timezone.utc)
+    items = [
+        _evt("reuters", pub - timedelta(minutes=4), raw_text="0.3 percent", source_tier=2),
+        _evt("bloomberg", pub + timedelta(minutes=1), raw_text="0.3%", source_tier=3),
+    ]
+    clusters = dedupe(items)
+    assert len(clusters) == 1, "same-number prose paraphrase must still collapse"
+
+
 def test_dedupe_respects_time_window():
     pub = datetime(2026, 8, 20, 13, 0, tzinfo=timezone.utc)
     items = [

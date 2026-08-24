@@ -40,6 +40,21 @@ from macroscope.models import EventObject
 # ---------------------------------------------------------------------------
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
+# Numeric values as they appear in raw_text (e.g. "0.3", "12"). Used both to
+# weight the SimHash register and to enforce the hard multiset gate in dedupe().
+_NUM_RE = re.compile(r"\d+(?:\.\d+)?")
+
+
+def numeric_multiset(text: str) -> tuple[float, ...]:
+    """Extract numeric values from ``text`` as a sorted tuple of floats.
+
+    sr-dev's B2 requirement (canonicalization): parse numbers at the *text* level
+    with this regex -- NOT from the alnum token stream, which splits "0.30" into
+    {0, 30} and would falsely never-merge against "0.3". Float-parsing makes
+    ``0.3`` == ``0.30``, so two items that agree on every number compare equal
+    here regardless of formatting. Returns an empty tuple when there are none.
+    """
+    return tuple(sorted(float(m) for m in _NUM_RE.findall(text)))
 
 
 def simhash(text: str, bits: int = 64) -> int:
@@ -48,18 +63,26 @@ def simhash(text: str, bits: int = 64) -> int:
     Tokenize on lowercase word chars, hash each token to ``bits`` with SHA-256,
     weight by frequency, and fold into a single register whose Hamming distance
     to another item's SimHash approximates text similarity (closer == more alike).
+
+    Numeric values are added as high-weight features (sr-dev B2): distinct macro
+    prints ("0.3%" vs "0.9%") must not collapse under the alnum tokenizer, which
+    splits decimals into lone digits that cancel out. Drop only short *alpha*
+    tokens, which are almost always noise (a, i, etc.).
     """
     if not text or not text.strip():
         return 0
-    # Keep every numeric token -- even a lone digit like "0" or "9" -- so that
-    # distinct macro prints ("US CPI rose 0.3%" vs "...0.9%") do not collapse to
-    # identical SimHashes. Drop only short *alpha* tokens, which are almost
-    # always noise (a, i, etc.).
+    register: list[float] = [0.0] * bits
+    # High-weight numeric features so distinct numbers stay distinguishable.
+    for n in numeric_multiset(text):
+        digest = hashlib.sha256(f"NUM:{n}".encode()).digest()
+        h = int.from_bytes(digest[:8], "big")
+        weight = 4.0  # sr-dev: x4 numeric weighting pushes number flips past threshold
+        for i in range(bits):
+            register[i] += weight if (h >> i) & 1 else -weight
     counts = Counter(
         t for t in _TOKEN_RE.findall(text.lower())
         if t.isdigit() or len(t) > 1
     )
-    register = [0] * bits
     for token, weight in counts.items():
         digest = hashlib.sha256(token.encode()).digest()
         h = int.from_bytes(digest[:8], "big")
@@ -215,6 +238,16 @@ def dedupe(
         best_rep: Optional[EventObject] = None
         for rep in reps:
             if abs(anchor - _anchor(rep)) > window:
+                continue
+            # Hard multiset gate (sr-dev B2): two items that carry different
+            # numeric values can never merge -- this is deterministic and
+            # independent of SimHash distance. "0.3%" vs "0.9%" have differing
+            # multisets, so they stay in separate clusters; "0.3 percent" vs
+            # "0.3%" share the same number, so the gate passes and SimHash then
+            # decides (and it is close enough to collapse). This is what makes
+            # distinct macro prints distinguishable even when the alnum tokenizer
+            # would otherwise split a decimal into lone digits that cancel out.
+            if numeric_multiset(evt.raw_text) != numeric_multiset(rep.raw_text):
                 continue
             dist = hamming(simhash(evt.raw_text, simhash_bits),
                            simhash(rep.raw_text, simhash_bits), simhash_bits)
