@@ -16,8 +16,9 @@
 | T-010 | Backtest engine core + walk-forward harness | coder / sr-dev | To Do |
 | T-011 | Baseline strategies (buy & hold, momentum, random) | coder / sr-dev | To Do |
 | T-012 | No-cheating / lookahead filter (the gating gatekeeper) | coder / sr-dev | To Do |
-| T-013 | Performance metrics + Buy/Hold/Sell verdict in reports | coder / sr-dev | To Do |
+| T-013 | Performance metrics + Buy/Hold/Sell verdict in reports | coder / sr-dev | Done (shipped @ad0dcde) |
 | T-014 | Monte Carlo simulation engine | coder / sr-dev | To Do |
+| T-015 | Regime-aware strategy (long on gold > 200d trend + falling real rates, flat otherwise) | coder / sr-dev | To Do |
 
 ## Dependencies
 - T-010 needs T-001 (schema) + price/series storage.
