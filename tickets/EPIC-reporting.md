@@ -19,10 +19,13 @@ strategy at a glance. Unblocked by the T-015 signal-direction fork.
 | ID | Card | Owner | Status |
 |----|------|-------|--------|
 | T-016 | Batch multi-name runner + cross-name table | coder / sr-dev | To Do |
-| T-017 | Portfolio-level aggregate (strategy series vs SPY B&H) | coder / sr-dev | To Do |
-| T-018 | Walk-forward multi-window stability (per-year edge, hit rate) | coder / sr-dev | To Do |
+| T-017 | Portfolio aggregate (strategy series vs SPY B&H) | coder / sr-dev | To Do |
+| T-018 | Walk-forward stability (per-year edge, hit rate) | coder / sr-dev | To Do |
+| T-019 | Consolidated multi-name performance report (docs-lane) | tech-writer / sr-dev | To Do |
 
 ## Dependencies
-- All depend on the shipped backtest epic (T-010/011/012/013/014).
+- All code cards depend on the shipped backtest epic (T-010/011/012/013/014).
 - T-017 consumes T-016's per-name equity curves — keep output shape stable.
+- **T-019 depends on T-016 Done** — it assembles the runner's stable output; do not build against
+  today's buggy `backtest_results.json` (sr-dev flagged a shipped-key bug T-016 fixes).
 - Independent of the T-015 signal-direction fork; sequence in parallel with strategy work.
