@@ -1,6 +1,6 @@
 {
   "symbol": "GC=F",
-  "generated_utc": "2026-08-25T14:33:49.304280+00:00",
+  "generated_utc": "2026-08-25T15:14:08.728502+00:00",
   "test_window": [
     "2024-08-25",
     "2026-08-25"
@@ -8,31 +8,31 @@
   "cost_bps": 10.0,
   "verdict": {
     "verdict": "HOLD",
-    "edge_vs_buy_and_hold": -0.0,
-    "strategy_total_return": 0.8579,
-    "baseline_total_return": 0.8579,
-    "conviction": 0.714
+    "edge_vs_buy_and_hold": -0.2477,
+    "strategy_total_return": 0.6143,
+    "baseline_total_return": 0.8619,
+    "conviction": 0.406
   },
   "comparison": {
     "strategy": {
-      "total_return": 0.8579,
-      "cagr": 0.3639,
-      "sharpe": 1.428,
-      "sortino": 1.704,
-      "max_drawdown": -0.2506,
-      "annual_vol": 0.2389,
-      "turnover": 1.0,
-      "cost_drag": 0.0,
+      "total_return": 0.6143,
+      "cagr": 0.2711,
+      "sharpe": 1.164,
+      "sortino": 1.314,
+      "max_drawdown": -0.2497,
+      "annual_vol": 0.231,
+      "turnover": 2.0,
+      "cost_drag": 0.001,
       "win_rate": 0.5746,
-      "exposure": 1.0,
-      "trades": 0,
+      "exposure": 0.9245,
+      "trades": 1,
       "n_bars": 503
     },
     "baseline": {
-      "total_return": 0.8579,
-      "cagr": 0.3639,
-      "sharpe": 1.428,
-      "sortino": 1.704,
+      "total_return": 0.8619,
+      "cagr": 0.3654,
+      "sharpe": 1.433,
+      "sortino": 1.709,
       "max_drawdown": -0.2506,
       "annual_vol": 0.2389,
       "turnover": 1.0,
@@ -42,22 +42,22 @@
       "trades": 0,
       "n_bars": 503
     },
-    "edge_vs_buy_and_hold": -0.0,
+    "edge_vs_buy_and_hold": -0.2477,
     "beats_baseline": false,
     "verdict": {
       "verdict": "HOLD",
-      "edge_vs_buy_and_hold": -0.0,
-      "strategy_total_return": 0.8579,
-      "baseline_total_return": 0.8579,
-      "conviction": 0.714
+      "edge_vs_buy_and_hold": -0.2477,
+      "strategy_total_return": 0.6143,
+      "baseline_total_return": 0.8619,
+      "conviction": 0.406
     }
   },
   "baselines": {
     "buy_and_hold": {
-      "total_return": 0.8579,
-      "cagr": 0.3639,
-      "sharpe": 1.428,
-      "sortino": 1.704,
+      "total_return": 0.8619,
+      "cagr": 0.3654,
+      "sharpe": 1.433,
+      "sortino": 1.709,
       "max_drawdown": -0.2506,
       "annual_vol": 0.2389,
       "turnover": 1.0,
@@ -68,17 +68,17 @@
       "n_bars": 503
     },
     "momentum_12_1": {
-      "total_return": 0.8579,
-      "cagr": 0.3639,
-      "sharpe": 1.428,
-      "sortino": 1.704,
-      "max_drawdown": -0.2506,
-      "annual_vol": 0.2389,
-      "turnover": 1.0,
-      "cost_drag": 0.0,
+      "total_return": 0.6143,
+      "cagr": 0.2711,
+      "sharpe": 1.164,
+      "sortino": 1.314,
+      "max_drawdown": -0.2497,
+      "annual_vol": 0.231,
+      "turnover": 2.0,
+      "cost_drag": 0.001,
       "win_rate": 0.5746,
-      "exposure": 1.0,
-      "trades": 0,
+      "exposure": 0.9245,
+      "trades": 1,
       "n_bars": 503
     },
     "random_frequency": {

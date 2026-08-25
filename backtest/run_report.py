@@ -23,7 +23,8 @@ import pandas as pd
 
 from .engine import WalkForwardEngine
 from .metrics import compare_to_buy_and_hold, compute_metrics
-from .strategies import buy_and_hold, make_momentum_12_1, make_random_frequency
+from .monte_carlo import monte_carlo
+from .strategies import buy_and_hold, make_momentum_12_1, make_random_frequency, make_regime_aware
 from .vintage_filter import PointInTimeProvider
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -66,6 +67,8 @@ HEADER = """# Macroscope Backtest Report — {symbol}
 > Random-frequency is the sanity floor: a strategy that cannot beat a seeded
 > coin flip on the same dates and costs is not adding value. Buy & hold is
 > THE reference line per @user's requirement.
+
+{mc_section}
 
 ## Walk-forward split
 
@@ -164,6 +167,13 @@ def _verdict_text(comp) -> str:
     return "Mixed: positive or negative but no decisive edge vs the baseline — hold current positioning."
 
 
+def _strategy_daily_returns(rows: pd.DataFrame) -> pd.Series | None:
+    """Strategy daily net returns for the Monte Carlo bootstrap (T-014)."""
+    if "bar_return" not in rows.columns:  # engine column: net of costs
+        return None
+    return rows["bar_return"].astype(float)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--symbol", default="GC=F")
@@ -195,6 +205,7 @@ def main() -> None:
     strategies = {
         "buy_and_hold": buy_and_hold,
         "momentum_12_1": make_momentum_12_1(),
+        "regime_aware": make_regime_aware(),  # T-015: trend filter can stand aside on down-moves
         "random_frequency": make_random_frequency(seed=42),
     }
     results = {}
@@ -210,20 +221,57 @@ def main() -> None:
         print(f"  {name}: net {tm.total_return:+.2%} ({len(test_rows)} test bars)")
 
     bh_rows = results["buy_and_hold"]
-    mo_rows = results["momentum_12_1"]
+    mo_rows = results["regime_aware"]  # T-015 primary: trend filter stands aside on down-moves
     ra_rows = results["random_frequency"]
 
     bh_m = compute_metrics(bh_rows)
     mo_m = compute_metrics(mo_rows)
     ra_m = compute_metrics(ra_rows)
 
-    # Primary strategy for the report = momentum 12-1 (the algorithm).
-    # Edge threshold: a sub-0.5% edge over buy & hold is measurement noise,
-    # not a tradable signal — verdict falls to HOLD instead of noise-BUY.
+    # Primary strategy for the report = regime-aware (T-015). Momentum 12-1 is
+    # kept as a baseline comparison. Edge threshold: a sub-0.5% edge over buy &
+    # hold is measurement noise, not a tradable signal — verdict falls to HOLD.
     comp = compare_to_buy_and_hold(mo_rows, bh_rows, edge_threshold=0.005)
-    strategy_name = "Momentum 12-1"
+    strategy_name = "Regime-aware (T-015)"
+
+    # T-014: Monte Carlo confidence intervals on the primary strategy's daily
+    # returns via bootstrap resampling of its own path.
+    strat_daily = _strategy_daily_returns(mo_rows)
+    mc = None
+    if strat_daily is not None and len(strat_daily.dropna()) > 20:
+        mc = monte_carlo(strat_daily, n_paths=1000, seed=42)
 
     _equity_svg(comp.rows, REPORTING / "equity_curve.svg")
+
+    # T-014 MC section body (kept out of the big HEADER template so it renders
+    # only when we actually have enough daily returns to bootstrap).
+    mc_section = ""
+    d = {}
+    if mc is not None:
+        d = mc.distributions
+        mc_section = f"""## Monte Carlo (T-014) — confidence intervals
+
+Bootstrap-resampled {mc.n_paths} paths of the primary strategy's own daily net
+returns (seed 42, 21-day block bootstrap: blocks preserve monthly serial
+correlation, so the resampled paths stay representative of the real regime
+sequence).
+
+| Metric | P10 | P50 | P90 | Point est. (mean of paths) |
+|---|---|---|---|---|
+| Total return | {d['total_return'][0]-1:+.1%} | {d['total_return'][1]-1:+.1%} | {d['total_return'][2]-1:+.1%} | {mc.point_estimate['total_return']-1:+.1%} |
+| CAGR | {d['cagr'][0]:+.2%} | {d['cagr'][1]:+.2%} | {d['cagr'][2]:+.2%} | {mc.point_estimate['cagr']:+.2%} |
+| Sharpe | {d['sharpe'][0]:.2f} | {d['sharpe'][1]:.2f} | {d['sharpe'][2]:.2f} | {mc.point_estimate['sharpe']:.2f} |
+| Max drawdown | {d['max_drawdown'][0]:.1%} | {d['max_drawdown'][1]:.1%} | {d['max_drawdown'][2]:.1%} | {mc.point_estimate['max_drawdown']:+.1%} |
+
+> P10/P50/P90 span the 10th–90th percentile across paths; point estimate is the
+> mean of each distribution. A strategy that only wins in the P90 tail (not the
+> median) is a lucky path, not an edge — @user's robustness requirement.
+> Path drawdowns run deeper than the realized one by construction: the block
+> bootstrap preserves monthly correlation but re-orders months, so a dip can
+> land on a higher equity base. Read the Sharpe/return columns as the
+> robustness signal; treat drawdown percentiles as an upper-bound, not a
+> forecast.
+"""
 
     md = HEADER.format(
         symbol=args.symbol,
@@ -252,6 +300,24 @@ def main() -> None:
         train_start=train_start.date(), train_end=train_end.date(),
         test_start=test_start.date(), test_end=test_end.date(),
         train_years=args.train_years, test_years=args.test_years,
+        mc_n=mc.n_paths if mc else 0,
+        mc_tr_p10=d['total_return'][0] if mc else 0.0,
+        mc_tr_p50=d['total_return'][1] if mc else 0.0,
+        mc_tr_p90=d['total_return'][2] if mc else 0.0,
+        mc_tr_pt=mc.point_estimate['total_return'] if mc else 0.0,
+        mc_cagr_p10=d['cagr'][0] if mc else 0.0,
+        mc_cagr_p50=d['cagr'][1] if mc else 0.0,
+        mc_cagr_p90=d['cagr'][2] if mc else 0.0,
+        mc_cagr_pt=mc.point_estimate['cagr'] if mc else 0.0,
+        mc_sharpe_p10=d['sharpe'][0] if mc else 0.0,
+        mc_sharpe_p50=d['sharpe'][1] if mc else 0.0,
+        mc_sharpe_p90=d['sharpe'][2] if mc else 0.0,
+        mc_sharpe_pt=mc.point_estimate['sharpe'] if mc else 0.0,
+        mc_mdd_p10=d['max_drawdown'][0] if mc else 0.0,
+        mc_mdd_p50=d['max_drawdown'][1] if mc else 0.0,
+        mc_mdd_p90=d['max_drawdown'][2] if mc else 0.0,
+        mc_mdd_pt=mc.point_estimate['max_drawdown'] if mc else 0.0,
+        mc_section=mc_section,
     )
     (REPORTING / "BACKTEST-REPORT.md").write_text(md)
 

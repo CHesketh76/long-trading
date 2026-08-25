@@ -10,5 +10,11 @@ and costs. Buy & hold is the user-mandated primary baseline.
 from .buy_and_hold import buy_and_hold
 from .momentum_12_1 import make_momentum_12_1
 from .random_frequency import make_random_frequency
+from .regime_aware import make_regime_aware
 
-__all__ = ["buy_and_hold", "make_momentum_12_1", "make_random_frequency"]
+__all__ = [
+    "buy_and_hold",
+    "make_momentum_12_1",
+    "make_random_frequency",
+    "make_regime_aware",
+]
