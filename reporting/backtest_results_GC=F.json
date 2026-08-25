@@ -1,6 +1,6 @@
 {
   "symbol": "GC=F",
-  "generated_utc": "2026-08-25T16:21:51.937462+00:00",
+  "generated_utc": "2026-08-25T16:32:30.646059+00:00",
   "test_window": [
     "2024-08-25",
     "2026-08-25"
@@ -8,10 +8,10 @@
   "cost_bps": 10.0,
   "verdict": {
     "verdict": "HOLD",
-    "edge_vs_buy_and_hold": -0.2525,
+    "edge_vs_buy_and_hold": -0.2505,
     "strategy_total_return": 0.6143,
-    "baseline_total_return": 0.8668,
-    "conviction": 0.401
+    "baseline_total_return": 0.8648,
+    "conviction": 0.403
   },
   "comparison": {
     "strategy": {
@@ -29,10 +29,10 @@
       "n_bars": 503
     },
     "baseline": {
-      "total_return": 0.8668,
-      "cagr": 0.3672,
-      "sharpe": 1.438,
-      "sortino": 1.716,
+      "total_return": 0.8648,
+      "cagr": 0.3664,
+      "sharpe": 1.436,
+      "sortino": 1.713,
       "max_drawdown": -0.2506,
       "annual_vol": 0.239,
       "turnover": 1.0,
@@ -42,22 +42,22 @@
       "trades": 0,
       "n_bars": 503
     },
-    "edge_vs_buy_and_hold": -0.2525,
+    "edge_vs_buy_and_hold": -0.2505,
     "beats_baseline": false,
     "verdict": {
       "verdict": "HOLD",
-      "edge_vs_buy_and_hold": -0.2525,
+      "edge_vs_buy_and_hold": -0.2505,
       "strategy_total_return": 0.6143,
-      "baseline_total_return": 0.8668,
-      "conviction": 0.401
+      "baseline_total_return": 0.8648,
+      "conviction": 0.403
     }
   },
   "baselines": {
     "buy_and_hold": {
-      "total_return": 0.8668,
-      "cagr": 0.3672,
-      "sharpe": 1.438,
-      "sortino": 1.716,
+      "total_return": 0.8648,
+      "cagr": 0.3664,
+      "sharpe": 1.436,
+      "sortino": 1.713,
       "max_drawdown": -0.2506,
       "annual_vol": 0.239,
       "turnover": 1.0,
@@ -68,10 +68,10 @@
       "n_bars": 503
     },
     "momentum_12_1": {
-      "total_return": 0.8668,
-      "cagr": 0.3672,
-      "sharpe": 1.438,
-      "sortino": 1.716,
+      "total_return": 0.8648,
+      "cagr": 0.3664,
+      "sharpe": 1.436,
+      "sortino": 1.713,
       "max_drawdown": -0.2506,
       "annual_vol": 0.239,
       "turnover": 1.0,

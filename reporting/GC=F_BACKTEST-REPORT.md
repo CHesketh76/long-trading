@@ -1,23 +1,23 @@
 # Macroscope Backtest Report — GC=F
 
-**Generated:** 2026-08-25 16:21 UTC · **Data:** 1257 daily bars · **T-012 filter:** active (point-in-time, quarantine, survivorship)
+**Generated:** 2026-08-25 16:32 UTC · **Data:** 1257 daily bars · **T-012 filter:** active (point-in-time, quarantine, survivorship)
 
 ## Verdict
 
 **HOLD** — Mixed: positive or negative but no decisive edge vs the baseline — hold current positioning.
 
-* Edge vs buy & hold: **-25.25%**
+* Edge vs buy & hold: **-25.05%**
 * Strategy total return (net, 10bps/side): **+61.43%**
-* Buy & hold total return: **+86.68%**
+* Buy & hold total return: **+86.48%**
 
 ## Performance vs buy & hold baseline
 
 | Metric | Strategy (Regime-aware (T-015)) | Buy & Hold |
 |---|---|---|
-| Total return (net) | +61.43% | +86.68% |
-| CAGR | +27.11% | +36.72% |
+| Total return (net) | +61.43% | +86.48% |
+| CAGR | +27.11% | +36.64% |
 | Sharpe (0% rf) | 1.16 | 1.44 |
-| Sortino | 1.31 | 1.72 |
+| Sortino | 1.31 | 1.71 |
 | Max drawdown | -24.97% | -25.06% |
 | Annual vol | 23.10% | 23.90% |
 | Exposure | 92% | 100% |
@@ -28,9 +28,9 @@
 
 | Strategy | Net total return | Sharpe | Max DD |
 |---|---|---|---|
-| **Buy & hold** | +86.68% | 1.44 | -25.06% |
+| **Buy & hold** | +86.48% | 1.44 | -25.06% |
 | Random frequency (seed 42) | +61.43% | 1.16 | -24.97% |
-| **Regime-aware (T-015)** | +86.68% | 1.44 | -25.06% |
+| **Regime-aware (T-015)** | +86.48% | 1.44 | -25.06% |
 
 > Random-frequency is the sanity floor: a strategy that cannot beat a seeded
 > coin flip on the same dates and costs is not adding value. Buy & hold is

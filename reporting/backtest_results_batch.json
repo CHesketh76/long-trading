@@ -1,0 +1,105 @@
+{
+  "generated_utc": "2026-08-25T16:32:40.984096+00:00",
+  "cost_bps": 10.0,
+  "test_window": [
+    "2024-08-25",
+    "2026-08-25"
+  ],
+  "names": [
+    {
+      "symbol": "GC=F",
+      "status": "ok",
+      "test_window": [
+        "2024-08-25",
+        "2026-08-25"
+      ],
+      "verdict": "HOLD",
+      "edge_vs_buy_and_hold": -0.2505,
+      "beats_baseline": false,
+      "strategy_total_return": 0.6142817761242982,
+      "cagr": 0.2711488558713939,
+      "sharpe": 1.1639058777551297,
+      "sortino": 1.3135284488291188,
+      "max_drawdown": -0.24971793733117875,
+      "exposure": 0.9244532803180915,
+      "trades": 1,
+      "baseline_total_return": 0.8647972717379211
+    },
+    {
+      "symbol": "NEM",
+      "status": "ok",
+      "test_window": [
+        "2024-08-25",
+        "2026-08-25"
+      ],
+      "verdict": "HOLD",
+      "edge_vs_buy_and_hold": -1.0973,
+      "beats_baseline": false,
+      "strategy_total_return": 0.5476670045628491,
+      "cagr": 0.24568047890385003,
+      "sharpe": 0.7557772318856457,
+      "sortino": 0.8177656299731753,
+      "max_drawdown": -0.35966792571123096,
+      "exposure": 0.7624750499001997,
+      "trades": 3,
+      "baseline_total_return": 1.6449961292563118
+    },
+    {
+      "symbol": "VRT",
+      "status": "ok",
+      "test_window": [
+        "2024-08-25",
+        "2026-08-25"
+      ],
+      "verdict": "HOLD",
+      "edge_vs_buy_and_hold": -0.7308,
+      "beats_baseline": false,
+      "strategy_total_return": 1.5901782967501372,
+      "cagr": 0.6139955909200479,
+      "sharpe": 1.09493341926171,
+      "sortino": 1.3171549167614016,
+      "max_drawdown": -0.44858622541693294,
+      "exposure": 0.874251497005988,
+      "trades": 2,
+      "baseline_total_return": 2.3209848431999727
+    },
+    {
+      "symbol": "XOM",
+      "status": "ok",
+      "test_window": [
+        "2024-08-25",
+        "2026-08-25"
+      ],
+      "verdict": "HOLD",
+      "edge_vs_buy_and_hold": -0.2822,
+      "beats_baseline": false,
+      "strategy_total_return": 0.17069242485713687,
+      "cagr": 0.08249605594715526,
+      "sharpe": 0.5171356165043713,
+      "sortino": 0.6090642598214266,
+      "max_drawdown": -0.27700793111545496,
+      "exposure": 0.7125748502994012,
+      "trades": 4,
+      "baseline_total_return": 0.4528727340794261
+    },
+    {
+      "symbol": "SMH",
+      "status": "ok",
+      "test_window": [
+        "2024-08-25",
+        "2026-08-25"
+      ],
+      "verdict": "HOLD",
+      "edge_vs_buy_and_hold": -0.0475,
+      "beats_baseline": false,
+      "strategy_total_return": 1.2615160194825217,
+      "cagr": 0.5075124623424176,
+      "sharpe": 1.3775645806473313,
+      "sortino": 1.6791330532707567,
+      "max_drawdown": -0.2462064829884717,
+      "exposure": 0.8363273453093812,
+      "trades": 2,
+      "baseline_total_return": 1.3089879625360288
+    }
+  ]
+}

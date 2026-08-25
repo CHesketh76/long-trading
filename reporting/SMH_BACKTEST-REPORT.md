@@ -1,36 +1,36 @@
-# Macroscope Backtest Report — GC=F
+# Macroscope Backtest Report — SMH
 
-**Generated:** 2026-08-25 16:21 UTC · **Data:** 1257 daily bars · **T-012 filter:** active (point-in-time, quarantine, survivorship)
+**Generated:** 2026-08-25 16:32 UTC · **Data:** 1255 daily bars · **T-012 filter:** active (point-in-time, quarantine, survivorship)
 
 ## Verdict
 
 **HOLD** — Mixed: positive or negative but no decisive edge vs the baseline — hold current positioning.
 
-* Edge vs buy & hold: **-25.25%**
-* Strategy total return (net, 10bps/side): **+61.43%**
-* Buy & hold total return: **+86.68%**
+* Edge vs buy & hold: **-4.75%**
+* Strategy total return (net, 10bps/side): **+126.15%**
+* Buy & hold total return: **+130.90%**
 
 ## Performance vs buy & hold baseline
 
 | Metric | Strategy (Regime-aware (T-015)) | Buy & Hold |
 |---|---|---|
-| Total return (net) | +61.43% | +86.68% |
-| CAGR | +27.11% | +36.72% |
-| Sharpe (0% rf) | 1.16 | 1.44 |
-| Sortino | 1.31 | 1.72 |
-| Max drawdown | -24.97% | -25.06% |
-| Annual vol | 23.10% | 23.90% |
-| Exposure | 92% | 100% |
-| Trades | 1 | 0 |
-| Cost drag (10bps/side) | 0.10% | 0.00% |
+| Total return (net) | +126.15% | +130.90% |
+| CAGR | +50.75% | +52.33% |
+| Sharpe (0% rf) | 1.38 | 1.25 |
+| Sortino | 1.68 | 1.69 |
+| Max drawdown | -24.62% | -32.65% |
+| Annual vol | 32.90% | 38.92% |
+| Exposure | 84% | 100% |
+| Trades | 2 | 0 |
+| Cost drag (10bps/side) | 0.20% | 0.00% |
 
 ## Baselines (same window, same costs)
 
 | Strategy | Net total return | Sharpe | Max DD |
 |---|---|---|---|
-| **Buy & hold** | +86.68% | 1.44 | -25.06% |
-| Random frequency (seed 42) | +61.43% | 1.16 | -24.97% |
-| **Regime-aware (T-015)** | +86.68% | 1.44 | -25.06% |
+| **Buy & hold** | +130.90% | 1.25 | -32.65% |
+| Random frequency (seed 42) | +126.15% | 1.38 | -24.62% |
+| **Regime-aware (T-015)** | +72.45% | 0.94 | -24.62% |
 
 > Random-frequency is the sanity floor: a strategy that cannot beat a seeded
 > coin flip on the same dates and costs is not adding value. Buy & hold is
@@ -45,10 +45,10 @@ sequence).
 
 | Metric | P10 | P50 | P90 | Point est. (mean of paths) |
 |---|---|---|---|---|
-| Total return | +12.0% | +62.0% | +129.2% | +67.4% |
-| CAGR | +45.72% | +62.01% | +81.67% | +63.10% |
-| Sharpe | 0.37 | 1.17 | 1.96 | 1.18 |
-| Max drawdown | -71.2% | -57.1% | -39.8% | -56.1% |
+| Total return | +71.3% | +175.1% | +354.3% | +199.3% |
+| CAGR | +65.21% | +94.43% | +136.65% | +98.42% |
+| Sharpe | 0.99 | 1.75 | 2.58 | 1.77 |
+| Max drawdown | -84.7% | -74.9% | -59.7% | -73.1% |
 
 > P10/P50/P90 span the 10th–90th percentile across paths; point estimate is the
 > mean of each distribution. A strategy that only wins in the P90 tail (not the

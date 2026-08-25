@@ -174,24 +174,31 @@ def _strategy_daily_returns(rows: pd.DataFrame) -> pd.Series | None:
     return rows["bar_return"].astype(float)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--symbol", default="GC=F")
-    parser.add_argument("--years", type=int, default=5)
-    parser.add_argument("--train-years", type=int, default=3)
-    parser.add_argument("--test-years", type=int, default=2)
-    parser.add_argument("--cost-bps", type=float, default=10.0)
-    args = parser.parse_args()
+def _run_one(
+    symbol: str,
+    args: argparse.Namespace,
+    *,
+    report_path: Path,
+    json_path: Path,
+    svg_path: Path,
+) -> dict:
+    """Run one symbol through the T-010 engine under the T-012 point-in-time
+    filter, compute T-013 metrics + verdict vs buy & hold, run the T-014 MC
+    bootstrap, and write a per-name report/json/svg. Returns a summary dict for
+    cross-name aggregation (used by run_batch.py).
 
+    This is the single source of truth for what a "strategy vs buy & hold" run
+    computes; run_report.main() and run_batch.py both call it so their output is
+    byte-format-identical. The momentum-key bug that T-016 fixes lives here:
+    ``momentum_12_1`` carries the REAL momentum metrics, never regime-aware's.
+    """
     REPORTING.mkdir(exist_ok=True)
-
-    print(f"Fetching {args.years}y of {args.symbol}...")
-    frame = _fetch(args.symbol, years=args.years)
+    print(f"Fetching {args.years}y of {symbol}...")
+    frame = _fetch(symbol, years=args.years)
     if len(frame) < 260 * args.years * 0.7:
-        print(f"ERROR: insufficient data ({len(frame)} rows). Aborting.")
-        sys.exit(1)
+        return {"symbol": symbol, "status": "insufficient_data", "reason": f"{len(frame)} rows"}
 
-    provider = PointInTimeProvider(frame, series_id=args.symbol)
+    provider = PointInTimeProvider(frame, series_id=symbol)
     engine = WalkForwardEngine(provider, cost_bps=args.cost_bps)
 
     train_start, train_end, test_start, test_end = engine.default_split(
@@ -218,30 +225,32 @@ def main() -> None:
         ]
         results[name] = test_rows
         tm = compute_metrics(test_rows)
-        print(f"  {name}: net {tm.total_return:+.2%} ({len(test_rows)} test bars)")
+        print(f"  {symbol} / {name}: net {tm.total_return:+.2%} ({len(test_rows)} test bars)")
 
     bh_rows = results["buy_and_hold"]
-    mo_rows = results["regime_aware"]  # T-015 primary: trend filter stands aside on down-moves
-    ra_rows = results["random_frequency"]
+    mo_rows = results["momentum_12_1"]  # T-013 baseline: REAL momentum metrics (NOT regime-aware)
+    ra_rows = results["regime_aware"]   # T-015 primary: trend filter stands aside on down-moves
+    rf_rows = results["random_frequency"]
 
     bh_m = compute_metrics(bh_rows)
     mo_m = compute_metrics(mo_rows)
     ra_m = compute_metrics(ra_rows)
+    rf_m = compute_metrics(rf_rows)
 
-    # Primary strategy for the report = regime-aware (T-015). Momentum 12-1 is
-    # kept as a baseline comparison. Edge threshold: a sub-0.5% edge over buy &
-    # hold is measurement noise, not a tradable signal — verdict falls to HOLD.
-    comp = compare_to_buy_and_hold(mo_rows, bh_rows, edge_threshold=0.005)
+    # Primary strategy for the report = regime-aware (T-015). Momentum 12-1 is a
+    # real baseline comparison. Edge threshold: a sub-0.5% edge over buy & hold
+    # is measurement noise, not a tradable signal — verdict falls to HOLD.
+    comp = compare_to_buy_and_hold(ra_rows, bh_rows, edge_threshold=0.005)
     strategy_name = "Regime-aware (T-015)"
 
     # T-014: Monte Carlo confidence intervals on the primary strategy's daily
     # returns via bootstrap resampling of its own path.
-    strat_daily = _strategy_daily_returns(mo_rows)
+    strat_daily = _strategy_daily_returns(ra_rows)
     mc = None
     if strat_daily is not None and len(strat_daily.dropna()) > 20:
         mc = monte_carlo(strat_daily, n_paths=1000, seed=42)
 
-    _equity_svg(comp.rows, REPORTING / "equity_curve.svg")
+    _equity_svg(comp.rows, svg_path)
 
     # T-014 MC section body (kept out of the big HEADER template so it renders
     # only when we actually have enough daily returns to bootstrap).
@@ -274,24 +283,24 @@ sequence).
 """
 
     md = HEADER.format(
-        symbol=args.symbol,
+        symbol=symbol,
         generated=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
         rows=len(frame),
         verdict=comp.verdict["verdict"],
         verdict_reason=_verdict_text(comp),
         edge=comp.edge,
-        strategy_total=mo_m.total_return,
+        strategy_total=ra_m.total_return,
         baseline_total=bh_m.total_return,
         strategy_name=strategy_name,
-        s_total=mo_m.total_return, b_total=bh_m.total_return,
-        s_cagr=mo_m.cagr, b_cagr=bh_m.cagr,
-        s_sharpe=mo_m.sharpe, b_sharpe=bh_m.sharpe,
-        s_sortino=mo_m.sortino, b_sortino=bh_m.sortino,
-        s_mdd=mo_m.max_drawdown, b_mdd=bh_m.max_drawdown,
-        s_vol=mo_m.annual_vol, b_vol=bh_m.annual_vol,
-        s_exposure=mo_m.exposure, b_exposure=bh_m.exposure,
-        s_trades=mo_m.trades, b_trades=bh_m.trades,
-        s_cost=mo_m.cost_drag, b_cost=bh_m.cost_drag,
+        s_total=ra_m.total_return, b_total=bh_m.total_return,
+        s_cagr=ra_m.cagr, b_cagr=bh_m.cagr,
+        s_sharpe=ra_m.sharpe, b_sharpe=bh_m.sharpe,
+        s_sortino=ra_m.sortino, b_sortino=bh_m.sortino,
+        s_mdd=ra_m.max_drawdown, b_mdd=bh_m.max_drawdown,
+        s_vol=ra_m.annual_vol, b_vol=bh_m.annual_vol,
+        s_exposure=ra_m.exposure, b_exposure=bh_m.exposure,
+        s_trades=ra_m.trades, b_trades=bh_m.trades,
+        s_cost=ra_m.cost_drag, b_cost=bh_m.cost_drag,
         bh_net=bh_m.total_return, bh_sharpe=bh_m.sharpe, bh_mdd=bh_m.max_drawdown,
         mo_net=mo_m.total_return, mo_sharpe=mo_m.sharpe, mo_mdd=mo_m.max_drawdown,
         ra_net=ra_m.total_return, ra_sharpe=ra_m.sharpe, ra_mdd=ra_m.max_drawdown,
@@ -319,10 +328,10 @@ sequence).
         mc_mdd_pt=mc.point_estimate['max_drawdown'] if mc else 0.0,
         mc_section=mc_section,
     )
-    (REPORTING / "BACKTEST-REPORT.md").write_text(md)
+    report_path.write_text(md)
 
     out = {
-        "symbol": args.symbol,
+        "symbol": symbol,
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "test_window": [str(test_start.date()), str(test_end.date())],
         "cost_bps": args.cost_bps,
@@ -331,17 +340,53 @@ sequence).
         "baselines": {
             "buy_and_hold": bh_m.to_dict(),
             "momentum_12_1": mo_m.to_dict(),
-            "random_frequency": ra_m.to_dict(),
+            "random_frequency": rf_m.to_dict(),
         },
     }
-    (REPORTING / "backtest_results.json").write_text(
-        json.dumps(out, indent=2, default=str)
+    json_path.write_text(json.dumps(out, indent=2, default=str))
+
+    return {
+        "symbol": symbol,
+        "status": "ok",
+        "test_window": [str(test_start.date()), str(test_end.date())],
+        "verdict": comp.verdict["verdict"],
+        "edge_vs_buy_and_hold": round(comp.edge, 4),
+        "beats_baseline": comp.beats_baseline,
+        "strategy_total_return": ra_m.total_return,
+        "cagr": ra_m.cagr,
+        "sharpe": ra_m.sharpe,
+        "sortino": ra_m.sortino,
+        "max_drawdown": ra_m.max_drawdown,
+        "exposure": ra_m.exposure,
+        "trades": ra_m.trades,
+        "baseline_total_return": bh_m.total_return,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--symbol", default="GC=F")
+    parser.add_argument("--years", type=int, default=5)
+    parser.add_argument("--train-years", type=int, default=3)
+    parser.add_argument("--test-years", type=int, default=2)
+    parser.add_argument("--cost-bps", type=float, default=10.0)
+    args = parser.parse_args()
+
+    summary = _run_one(
+        args.symbol,
+        args,
+        report_path=REPORTING / "BACKTEST-REPORT.md",
+        json_path=REPORTING / "backtest_results.json",
+        svg_path=REPORTING / "equity_curve.svg",
     )
+    if summary["status"] != "ok":
+        print(f"ERROR: {summary['reason']}")
+        sys.exit(1)
 
     print(f"\nWrote {REPORTING / 'BACKTEST-REPORT.md'}")
     print(f"Wrote {REPORTING / 'backtest_results.json'}")
     print(f"Wrote {REPORTING / 'equity_curve.svg'}")
-    print(f"\nVERDICT: {comp.verdict['verdict']} (edge {comp.edge:+.2%})")
+    print(f"\nVERDICT: {summary['verdict']} (edge {summary['edge_vs_buy_and_hold']:+.2%})")
 
 
 if __name__ == "__main__":
