@@ -1,0 +1,99 @@
+{
+  "symbol": "GC=F",
+  "generated_utc": "2026-08-25T14:33:49.304280+00:00",
+  "test_window": [
+    "2024-08-25",
+    "2026-08-25"
+  ],
+  "cost_bps": 10.0,
+  "verdict": {
+    "verdict": "HOLD",
+    "edge_vs_buy_and_hold": -0.0,
+    "strategy_total_return": 0.8579,
+    "baseline_total_return": 0.8579,
+    "conviction": 0.714
+  },
+  "comparison": {
+    "strategy": {
+      "total_return": 0.8579,
+      "cagr": 0.3639,
+      "sharpe": 1.428,
+      "sortino": 1.704,
+      "max_drawdown": -0.2506,
+      "annual_vol": 0.2389,
+      "turnover": 1.0,
+      "cost_drag": 0.0,
+      "win_rate": 0.5746,
+      "exposure": 1.0,
+      "trades": 0,
+      "n_bars": 503
+    },
+    "baseline": {
+      "total_return": 0.8579,
+      "cagr": 0.3639,
+      "sharpe": 1.428,
+      "sortino": 1.704,
+      "max_drawdown": -0.2506,
+      "annual_vol": 0.2389,
+      "turnover": 1.0,
+      "cost_drag": 0.0,
+      "win_rate": 0.5746,
+      "exposure": 1.0,
+      "trades": 0,
+      "n_bars": 503
+    },
+    "edge_vs_buy_and_hold": -0.0,
+    "beats_baseline": false,
+    "verdict": {
+      "verdict": "HOLD",
+      "edge_vs_buy_and_hold": -0.0,
+      "strategy_total_return": 0.8579,
+      "baseline_total_return": 0.8579,
+      "conviction": 0.714
+    }
+  },
+  "baselines": {
+    "buy_and_hold": {
+      "total_return": 0.8579,
+      "cagr": 0.3639,
+      "sharpe": 1.428,
+      "sortino": 1.704,
+      "max_drawdown": -0.2506,
+      "annual_vol": 0.2389,
+      "turnover": 1.0,
+      "cost_drag": 0.0,
+      "win_rate": 0.5746,
+      "exposure": 1.0,
+      "trades": 0,
+      "n_bars": 503
+    },
+    "momentum_12_1": {
+      "total_return": 0.8579,
+      "cagr": 0.3639,
+      "sharpe": 1.428,
+      "sortino": 1.704,
+      "max_drawdown": -0.2506,
+      "annual_vol": 0.2389,
+      "turnover": 1.0,
+      "cost_drag": 0.0,
+      "win_rate": 0.5746,
+      "exposure": 1.0,
+      "trades": 0,
+      "n_bars": 503
+    },
+    "random_frequency": {
+      "total_return": 0.014,
+      "cagr": 0.007,
+      "sharpe": 0.141,
+      "sortino": 0.107,
+      "max_drawdown": -0.325,
+      "annual_vol": 0.1827,
+      "turnover": 14.0,
+      "cost_drag": 0.013,
+      "win_rate": 0.5746,
+      "exposure": 0.4751,
+      "trades": 13,
+      "n_bars": 503
+    }
+  }
+}

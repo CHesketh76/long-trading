@@ -11,6 +11,7 @@ dependencies = [
     "pydantic>=2",
     "requests",
     "python-dotenv",
+    "yfinance",
 ]
 
 [project.optional-dependencies]
@@ -22,7 +23,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["macroscope*", "ingestion*", "storage*", "signals*", "reporting*"]
+include = ["macroscope*", "ingestion*", "storage*", "signals*", "reporting*", "backtest*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
