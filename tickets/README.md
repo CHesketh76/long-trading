@@ -24,5 +24,14 @@ Nothing ships raw from Coder; sr-dev signs off on architecture/security/scalabil
 
 Full breakdown: `tickets/EPIC-backtest.md`. User's spec: 5y window (3y train / 2y test), buy & hold per-name baseline, no-cheating filter mandatory, final Buy/Hold/Sell verdict in reports.
 
+### Epic: Reporting & Portfolio Analytics (@user "continue building performance reports")
+| ID | Epic | Card | Owner | Status |
+|----|------|------|-------|--------|
+|| Reporting | T-016 | Batch multi-name runner + cross-name table | coder / sr-dev | To Do |
+|| Reporting | T-017 | Portfolio aggregate (strategy series vs SPY B&H) | coder / sr-dev | To Do |
+|| Reporting | T-018 | Walk-forward stability (per-year edge, hit rate) | coder / sr-dev | To Do |
+
+Full breakdown: `tickets/EPIC-reporting.md`. Unblocked by the T-015 signal-direction fork — reporting shape is orthogonal to which signal we ship.
+
 Docs lane (tech-writer): one doc card per feature card that hits Done; nothing marked *Synced*
 until code and docs are byte-aligned. `docs/architecture.md` (§3 Mermaid) already shipped.
